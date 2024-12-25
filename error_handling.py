@@ -2,6 +2,7 @@ import threading
 import random
 import time
 
+
 class Bank:
     def __init__(self):
         self.balance = 0
@@ -13,10 +14,7 @@ class Bank:
             with self.lock:
                 self.balance += amount
                 print(f"Пополнение: {amount}. Баланс: {self.balance}")
-
-                if self.balance >= 500 and self.lock.locked():
-                    self.lock.release()
-            time.sleep(0.001)
+            time.sleep(0.01)
 
     def take(self):
         for _ in range(100):
@@ -27,14 +25,13 @@ class Bank:
                     self.balance -= amount
                     print(f"Снятие: {amount}. Баланс: {self.balance}")
                 else:
-                    print("Запрос отклонён, недостаточно средств")
-                    self.lock.acquire()
-
+                    print(f"Запрос отклонён, недостаточно средств. Баланс: {self.balance}")
+            time.sleep(0.01)
 
 bk = Bank()
 
-th1 = threading.Thread(target=Bank.deposit, args=(bk,))
-th2 = threading.Thread(target=Bank.take, args=(bk,))
+th1 = threading.Thread(target=bk.deposit)
+th2 = threading.Thread(target=bk.take)
 
 th1.start()
 th2.start()
@@ -43,3 +40,4 @@ th1.join()
 th2.join()
 
 print(f"Итоговый баланс: {bk.balance}")
+
